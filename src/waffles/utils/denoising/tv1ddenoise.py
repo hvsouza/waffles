@@ -31,8 +31,7 @@ class Denoise:
         self.__hasnptsset = False
         self.__npts = npts
         if npts > 0:
-            self.__hasnptsset = True
-            self.tv1filter.TV1D_denoise.restype = np.ctypeslib.ndpointer(dtype=np.float32, shape=(self.__npts,))
+            self.__setupreturn()
 
         
     def apply_denoise(self, raw: Waveform.adcs, filter: float = 0) -> np.ndarray:
@@ -55,8 +54,9 @@ class Denoise:
         """
         if not self.__hasnptsset:
             self.__npts = len(raw)
-            self.tv1filter.TV1D_denoise.restype = np.ctypeslib.ndpointer(dtype=np.float32, shape=(self.__npts,))
+            self.__setupreturn()
         return self.tv1filter.TV1D_denoise(raw.astype(np.float32), self.__npts, filter)
+
 
     def create_filtered_waveforms(self, wfset:WaveformSet, filter: float = 0, show_progress: bool = False):
         """Apply denoising on all waveforms of a WaveformSet. Saved the filtered waveforms in each `waveforms` object as `filtered`
@@ -90,6 +90,10 @@ class Denoise:
         self.tv1filter = ctypes.cdll.LoadLibrary(f"{dir_path}/tv1ddenoise.o")
         self.tv1filter.TV1D_denoise.argtypes = [ np.ctypeslib.ndpointer(dtype=np.float32), ctypes.c_int , ctypes.c_double ]
 
+
+    def __setupreturn(self, wvf):
+        self.__hasnptsset = True
+        self.tv1filter.TV1D_denoise.restype = np.ctypeslib.ndpointer(dtype=np.float32, shape=(self.__npts,))
         
 
         
