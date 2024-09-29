@@ -1,6 +1,7 @@
 import inspect
 
 import numpy as np
+from tqdm import tqdm
 from typing import Tuple, List, Dict, Callable, Optional
 from plotly import graph_objects as pgo
 from plotly import subplots as psu
@@ -905,6 +906,7 @@ class WaveformSet:
         *args,
         actually_filter: bool = False,
         return_the_staying_ones: bool = True,
+        show_progress: bool = False,
         **kwargs
     ) -> List[int]:
         """This method filters the waveforms in this WaveformSet
@@ -947,6 +949,8 @@ class WaveformSet:
             passed (resp. didn't pass) the filter, i.e.
             those for which the filter evaluated to
             True (resp. False).
+        show_progress: bool
+            If True, will show tqdm progress bar
         *kwargs
             For each Waveform, wf, these are the
             keyword arguments which are given to
@@ -973,7 +977,7 @@ class WaveformSet:
 
         staying_ones, dumped_ones = [], []
 
-        for i in range(len(self.__waveforms)):
+        for i in tqdm(range(len(self.__waveforms)), disable=not show_progress):
             if wf_filter(self.__waveforms[i], *args, **kwargs):
                 staying_ones.append(i)
             else:
