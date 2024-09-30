@@ -155,6 +155,8 @@ def get_filepaths_from_rucio(rucio_filepath) -> list:
     
     # if entire path is given when data is in eos, remove the first part
     filepaths = [line.strip().replace('root://eospublic.cern.ch:1094/', '') for line in lines]  
+    # avoid tpwriter files
+    filepaths = [line for line in filepaths if 'tpwriter' not in line]  
     quality_check = filepaths[0]
     if "eos" in quality_check:
         print("Your files are stored in /eos/")
