@@ -91,7 +91,7 @@ class Denoise:
         self.tv1filter.TV1D_denoise.argtypes = [ np.ctypeslib.ndpointer(dtype=np.float32), ctypes.c_int , ctypes.c_double ]
 
 
-    def __setupreturn(self, wvf):
+    def __setupreturn(self):
         self.__hasnptsset = True
         self.tv1filter.TV1D_denoise.restype = np.ctypeslib.ndpointer(dtype=np.float32, shape=(self.__npts,))
         
