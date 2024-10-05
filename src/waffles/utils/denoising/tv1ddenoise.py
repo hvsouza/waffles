@@ -25,6 +25,7 @@ class Denoise:
             object as `filtered`
         """
         dir_path = os.path.dirname(os.path.realpath(__file__))
+        dir_path = f"{dir_path}/tv1d_cpp/"
 
         self.load_filter(dir_path)
 
