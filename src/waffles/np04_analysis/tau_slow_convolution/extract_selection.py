@@ -16,7 +16,7 @@ if __name__ == "__main__":
     parse.add_argument('-r','--response', action="store_true", help="Set true if response")
     parse.add_argument('-t','--template', action="store_true", help="Set true if template")
     parse.add_argument('-rl','--runlist', type=str, help="What run list to be used (purity or beam)", default="purity")
-    parse.add_argument('-ch','--channels', type=int, nargs="+", help="Channels to analyze", default=[11225])
+    parse.add_argument('-ch','--channels', type=int, nargs="+", help="Channels to analyze (format: 11225)", default=[11225])
     parse.add_argument('-p','--showp', action="store_true", help="Show progress bar")
     parse.add_argument('-f','--force', action="store_true", help='Overwrite...')
     parse.add_argument('-n','--dry', action="store_true", help="Dry run")
@@ -93,15 +93,18 @@ if __name__ == "__main__":
                 else:
                     continue
             extractor = Extractor(selectiontype, runnumber) #here because I changed the baseline down..
+
+            wch = ch
+            if wfset.waveforms[0].channel - 100 < 0: # the channel stored is the short one
+                wch = int(str(ch)[3:])
             try: 
-                wfset_ch = WaveformSet.from_filtered_WaveformSet( wfset, extractor.allow_certain_endpoints_channels, [endpoint] , [ch], show_progress=args['showp'])
+                wfset_ch = WaveformSet.from_filtered_WaveformSet( wfset, extractor.allow_certain_endpoints_channels, [endpoint] , [wch], show_progress=args['showp'])
             except Exception as error:
                 print(error)
                 print(f"No waveform for run {runnumber}, channel {ch}")
                 continue
 
-
-            wvf_arrays = np.array([(waveform.adcs.astype(np.float32) - waveform.baseline)*-1 for waveform in wfset_ch.waveforms if waveform.channel == ch])
+            wvf_arrays = np.array([(waveform.adcs.astype(np.float32) - waveform.baseline)*-1 for waveform in wfset_ch.waveforms if waveform.channel == wch])
             if runnumber in blacklist:
                 print("Skipping first half...")
                 skip = int(0.5*len(wvf_arrays))

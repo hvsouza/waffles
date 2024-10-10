@@ -28,6 +28,8 @@ class Collector:
             112: [11220, 11221, 11222, 11223, 11224, 11225, 11226, 11227, 11230, 11231, 11232, 11235, 11237],
             111: [11111, 11113, 11114, 11116, 11117, 11115, 11112, 11110],
         }
+        for k, v in self.channels_of_endpoint.items():
+            self.channels_of_endpoint[k] = [ x - k*100 if (x-k*100)>0 else x for x in v ]
 
         # This runs are skipped for endpoint 111 as I found no waveform there...
         self.skipthisled = [ 26114, 26139, 26156, 26075 ]
