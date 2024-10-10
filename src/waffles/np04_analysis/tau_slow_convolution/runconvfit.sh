@@ -14,10 +14,4 @@ for ch in ${channels[@]}; do
     echo ${runlist[@]} | xargs -P${maxprocess} -n1 bash -c 'python convfit.py --runs "$0" -ch '${ch}' -rl '${type}' -ft -tt 29177 -ns new_template_inter -i --scan 6'
     echo ${runlist[@]} | xargs -P${maxprocess} -n1 bash -c 'python convfit.py --runs "$0" -ch '${ch}' -rl '${type}' -ft -tt 0 -ns ultimate_inter -i  --scan 6'
 
-    # for r in ${runlist[@]}; do
-    #     python convfit.py --runs $r -ch $ch -rl $type
-    #     python convfit.py --runs $r -ch $ch -rl $type -ft -tt 26261
-    #     python convfit.py --runs $r -ch $ch -rl $type -ft -tt 29177 -ns new_template
-    #     python convfit.py --runs $r -ch $ch -rl $type -ft -tt 0     -ns ultimate
-    # done
 done
