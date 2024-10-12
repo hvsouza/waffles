@@ -5,6 +5,7 @@ from waffles.data_classes.WaveformSet import WaveformSet
 import argparse
 from glob import glob
 import os
+import waffles
 
 class Collector:
     def __init__(self, mtype:str = "purity", endpoint = 112, doall:bool = True, runs:list = [], forceit = False, rucio_files_path="./", output_path="./"):
@@ -69,7 +70,9 @@ class Collector:
 
             filepaths = reader.get_filepaths_from_rucio(f)
             wfset_ch = 0
+            allfiles = len(filepaths)
             for i, fpath in enumerate(filepaths):
+                print(f"Processing {i}/{allfiles}")
                 wfset = 0
                 try:
                     wfset = reader.WaveformSet_from_hdf5_file( fpath,                            # path to the root file
@@ -116,8 +119,9 @@ if __name__ == "__main__":
     args = vars(parse.parse_args())
 
 
+    pathofwaffles = os.path.dirname(waffles.__file__)
     c = Collector(
-        rucio_files_path="./runlists/files",
+        rucio_files_path=f"{pathofwaffles}/np04_analysis/tau_slow_convolution/runlists/files/",
         output_path="./rawdata/waffles_tau_slow_protoDUNE_HD/",
         **args)
     c.collect()
