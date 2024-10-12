@@ -95,7 +95,7 @@ if __name__ == "__main__":
             extractor = Extractor(selectiontype, runnumber) #here because I changed the baseline down..
 
             wch = ch
-            if wfset.waveforms[0].channel - 100 < 0: # the channel stored is the short one
+            if (wfset.waveforms[0].channel).astype(np.int64) - 100 < 0: # the channel stored is the short one
                 wch = int(str(ch)[3:])
             try: 
                 wfset_ch = WaveformSet.from_filtered_WaveformSet( wfset, extractor.allow_certain_endpoints_channels, [endpoint] , [wch], show_progress=args['showp'])
