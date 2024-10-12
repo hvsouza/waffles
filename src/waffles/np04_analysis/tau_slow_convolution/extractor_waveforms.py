@@ -43,10 +43,14 @@ class Extractor:
         self.baseliner.minimumfrac = 1/6.
 
 
+        self.channel_correction=False
+
 
     def applycuts(self, waveform: Waveform, ch:int) -> bool:
         """Uses the cuts speficied in a yaml file to select the proper waveforms
         """
+        if self.channel_correction:
+            ch = 100*waveform.endpoint + ch.astype(np.int32)
         try:
             cuts = self.cutsdata[ch]['cuts']
         except Exception as error:
