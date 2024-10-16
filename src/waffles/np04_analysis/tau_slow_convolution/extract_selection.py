@@ -38,8 +38,10 @@ if __name__ == "__main__":
     raw_data_path = "./rawdata/waffles_tau_slow_protoDUNE_HD/"
 
     # these runs should be analyzed only on the last half
-    blacklist = [ 28210, 28211, 28212, 28213, 28215, 28216, 28217, 28218, 28219 ] 
-    try: 
+    blacklist = [ 26145, 26147, 26149, 26152, 26154, 26161, 26163, 26165, 26167 ]
+    blacklist += [ 28210, 28211, 28212, 28213, 28215, 28216, 28217, 28218, 28219 ]
+
+    try:
         runnumbers = np.unique(dfcsv.dataframes[runlist]['Run'].to_numpy())
     except Exception as error:
         print(error)
@@ -94,7 +96,7 @@ if __name__ == "__main__":
             if (wfset.waveforms[0].channel).astype(np.int64) - 100 < 0: # the channel stored is the short one
                 wch = int(str(ch)[3:])
                 extractor.channel_correction = True
-            try: 
+            try:
                 wfset_ch = WaveformSet.from_filtered_WaveformSet( wfset, extractor.allow_certain_endpoints_channels, [endpoint] , [wch], show_progress=args['showp'])
             except Exception as error:
                 print(error)
