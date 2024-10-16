@@ -3,6 +3,7 @@
 from waffles.data_classes.WaveformSet import WaveformSet
 from waffles.data_classes.Waveform import Waveform
 from waffles.input.pickle_file_to_WaveformSet import pickle_file_to_WaveformSet
+from waffles.np04_data.tau_slow_runs.load_runs_csv import ReaderCSV
 from extract_selection import Extractor
 import argparse
 import numpy as np
@@ -29,16 +30,17 @@ if __name__ == "__main__":
     args = vars(parse.parse_args())
     channels = args['channels']
 
-    filelist = f"/eos/home-h/hvieirad/waffles/analysis/runlists/purity_runs.csv"
-    runnumbers = np.unique(pd.read_csv(filelist)["Run LED"].to_numpy())
+    dfcsv = ReaderCSV()
+    runnumbers = dfcsv.dataframes['led']['Run'].to_numpy()
 
     for ch in channels:
-        allwvfs = []
+        allwvfs =  {0: [], 1:[]}
+        ultimatetype = 0
         ft = Filter()
         wfout:WaveformSet = None
         for run in runnumbers:
-            if run==29177:# and ch//100 == 112:
-                continue
+            if run > 27901:# and ch//100 == 112:
+                ultimatetype = 1
             print(f'run {run}', end=' ')
             wfset:WaveformSet
             try:
@@ -53,25 +55,27 @@ if __name__ == "__main__":
                 pass
             first = False
             print(f'total: {len(wfset.waveforms)}')
-            allwvfs += [(waveform.adcs.astype(np.float32) - waveform.baseline)*-1 for waveform in wfset.waveforms]
+            allwvfs[ultimatetype] += [(waveform.adcs.astype(np.float32) - waveform.baseline)*-1 for waveform in wfset.waveforms]
+        for ultimatetype in range(2):
 
-        allwvfs = np.array(allwvfs)
-        print('Total waveforms for master template:', len(allwvfs))
-        avgwvf = np.mean(allwvfs, axis=0)
-        
-        extractor = Extractor("template")
-        extractor.baseliner.binsbase = np.linspace(-20,20,500)
-        res0, status = extractor.baseliner.compute_baseline(avgwvf)
-        avgwvf-=res0
-        wfout.avgwvf = avgwvf
-        wfout.nselected = len(allwvfs)
-        print(f'\t {ch}: {len(allwvfs)}')
-        pickleselecname = f'templates/template_run00_ch{ch}.pkl'
-        pickleavgname = f'templates/template_run00_ch{ch}_avg.pkl'
-        with open(pickleselecname, "wb") as f:
-            pickle.dump(wfout, f)
+            allwvfs[ultimatetype] = np.array(allwvfs[ultimatetype])
+            print(ultimatetype, 'Total waveforms for master template:', len(allwvfs[ultimatetype]))
+            avgwvf = np.mean(allwvfs[ultimatetype], axis=0)
+            
+            extractor = Extractor("template")
+            extractor.baseliner.binsbase = np.linspace(-20,20,500)
+            res0, status = extractor.baseliner.compute_baseline(avgwvf)
+            avgwvf-=res0
+            wfout.avgwvf = avgwvf
+            wfout.nselected = len(allwvfs[ultimatetype])
+            print(f'\t {ch}: {len(allwvfs[ultimatetype])}')
+            pickleselecname = f'templates/template_run0{ultimatetype}_ch{ch}.pkl'
+            pickleavgname = f'templates/template_run0{ultimatetype}_ch{ch}_avg.pkl'
+            print(pickleselecname)
+            with open(pickleselecname, "wb") as f:
+                pickle.dump(wfout, f)
 
-        output = np.array([wfout.avgwvf, wfout.waveforms[0].timestamp, wfout.nselected], dtype=object)
-        with open(pickleavgname, "wb") as f:
-            pickle.dump(output, f)
-        print('Saved... ')
+            output = np.array([wfout.avgwvf, wfout.waveforms[0].timestamp, wfout.nselected], dtype=object)
+            with open(pickleavgname, "wb") as f:
+                pickle.dump(output, f)
+            print('Saved... ')
